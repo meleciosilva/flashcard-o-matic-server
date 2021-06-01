@@ -12,11 +12,6 @@ module.exports =
       "name": "React Router",
       "description": "React Router is a collection of navigational components that compose declaratively with your application."
     },
-    {
-      "name": "Planets",
-      "description": "Pluto, Venus, Uranus",
-      "id": 3
-    }
   ],
   "cards": [
     {
@@ -56,23 +51,5 @@ module.exports =
       "deckId": 1,
       "id": 7
     },
-    {
-      "front": "What is the first planet from the sun?",
-      "back": "Mercury",
-      "deckId": 3,
-      "id": 8
-    },
-    {
-      "front": "Blah",
-      "back": "Yeah",
-      "deckId": 3,
-      "id": 9
-    },
-    {
-      "front": "Hello",
-      "back": "There",
-      "deckId": 3,
-      "id": 10
-    }
   ]
 }
