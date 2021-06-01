@@ -10,7 +10,7 @@ app.use(cors({ origin: "http://localhost:3000" }))
 app.use(express.json());
 
 app.use("/decks", decksRouter);
-app.use("/decks", cardsRouter);
+app.use("/cards", cardsRouter);
 
 const listener = () => console.log(`Server up and running on port ${port}!`);
 app.listen(port, listener);
