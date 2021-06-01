@@ -24,11 +24,14 @@ function create(req, res) {
 function read(req, res) {
   const { _embed } = req.query;
 
+  let cards = db.cards;
+  let deckCards = cards.filter(card => Number(card.deckId) === Number(res.locals.deck.id));
+  
   if (_embed === "cards") {
-    let cards = db.cards;
-    let deckCards = cards.filter(card => Number(card.deckId) === Number(res.locals.deck.id));
     return res.json({ ...res.locals.deck, cards: deckCards });
   }
+
+  return res.json([ ...deckCards ]);
 
 }
 
@@ -76,5 +79,6 @@ module.exports = {
   read: [deckExists, read],
   create,
   update: [deckExists, update],
-  delete: [deckExists, destroy]
+  delete: [deckExists, destroy],
+  deckExists
 }
