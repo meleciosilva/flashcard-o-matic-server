@@ -1,5 +1,12 @@
 const router = require("express").Router();
 const controller = require("./../controllers/decks.controller");
+const cardsRouter = require("./../routers/cards.router");
+
+router.use("/:deckId/cards", controller.deckExists, cardsRouter);
+
+router
+  .route("/:deckId/cards")
+  .get(controller.read)
 
 router
   .route("/:deckId")
