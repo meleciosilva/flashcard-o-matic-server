@@ -1,10 +1,14 @@
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, "..", ".env") });
+
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 5000;
 const cors = require("cors");
 
 const decksRouter = require("./routers/decks.router");
 const cardsRouter = require("./routers/cards.router");
+const errorHandler = require("./errors/errorHandler");
+const notFound = require("./errors/notFound");
 
 app.use(cors({ origin: "*" }))
 app.use(express.json());
@@ -12,5 +16,7 @@ app.use(express.json());
 app.use("/decks", decksRouter);
 app.use("/cards", cardsRouter);
 
-const listener = () => console.log(`Server up and running on port ${port}!`);
-app.listen(port, listener);
+app.use(notFound);
+app.use(errorHandler);
+
+module.exports = app;
