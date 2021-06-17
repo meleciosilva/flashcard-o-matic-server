@@ -1,5 +1,8 @@
+const decksService = require("../services/decks.service");
 let db = require("./../../db");
+const VALID_PROPS = ["name", "description"];
 
+// validation middleware
 
 function deckExists(req, res, next) {
   let deckId = req.params.deckId;
@@ -11,14 +14,46 @@ function deckExists(req, res, next) {
   res.json({ message: "ERROR" })
 }
 
+function hasOnlyValidProps(req, res, next) {
+  const { data = {} } = req.body;
 
-// Since some ID's may already be used, you find the largest assigned id.
-let lastId = db.decks.reduce((maxId, deck) => Math.max(maxId, deck.id), 0)
+  const invalidFields = Object.keys(data).filter(
+    (field) => !VALID_PROPS.includes(field)
+  );
 
-function create(req, res) {
-  let newDeck = { ...req.body, id: ++lastId  }
-  db.decks.push(newDeck);
-  res.status(201).json({ ...newDeck });
+  if (invalidFields.length) {
+    return next({
+      status: 400,
+      message: `Invalid field(s): ${invalidFields.join(", ")}`,
+    });
+  }
+  next();
+}
+
+function hasRequiredProps(req, res, next) {
+  const { data = {} } = req.body;
+
+  VALID_PROPS.forEach((property) => {
+    if (!data[property]) {
+      return next({
+        status: 400,
+        message: `A '${property}' property is required.`
+      });
+    }
+  });
+  next();
+}
+
+// router-level middleware
+
+async function create(req, res, next) {
+  try {
+    const newDeck = req.body.data;
+    const data = await decksService.create(newDeck);
+    res.status(201).json({ data });
+  } catch(error) {
+    next(error);
+  }
 }
 
 function read(req, res) {
@@ -51,21 +86,13 @@ function update(req, res) {
 
 }
 
-function list(req, res) {
-  
-  const { _embed } = req.query;
-  
-  if (_embed === "cards") {
-    let cards = db.cards;
-    let results = db.decks.map(deck => {
-      let deckCards = cards.filter(card => Number(card.deckId) === Number(deck.id));
-      return { ...deck, cards: deckCards }
-    });
-    return res.json( [...results] )
+async function list(req, res, next) {
+  try {
+  const decks = await decksService.list();
+    res.json({ decks });
+  } catch(error) {
+      next(error);
   }
-
-  const decks = db.decks;
-  res.json( [...decks] );
 };
 
 function destroy(req, res) {
@@ -76,8 +103,8 @@ function destroy(req, res) {
 
 module.exports = {
   list,
+  create: [hasOnlyValidProps, hasRequiredProps, create],
   read: [deckExists, read],
-  create,
   update: [deckExists, update],
   delete: [deckExists, destroy],
   deckExists
